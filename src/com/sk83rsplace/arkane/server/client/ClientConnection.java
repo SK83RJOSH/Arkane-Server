@@ -17,18 +17,28 @@ public class ClientConnection extends Thread implements IClient {
     private static final String ACTION_DISCONNECT = "Disconnecting";
     private static final String ACTION_HEARTBEAT = "Ping";
     private static final String ACTION_HEARTBEAT_RECEIVED = "Pong";
-    private static boolean running = true;
-    private static int heartbeats = 0;
+    private boolean running;
+    private int heartbeats;
+    private long ping;
+    private long sent_time;
     
     public ClientConnection(Socket clientSocket) throws IOException {
         this.socket = clientSocket;
+    	ping = 0;
+    	sent_time = 0;
+    	heartbeats = 0;
+    	running = true;
     	
+        System.out.println("Heartbeats: " + heartbeats + " Ping: " + ping);
+        
         try {
 	        out = new PrintWriter(socket.getOutputStream(), true);
 	        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         } catch(IOException e ) {
     		e.printStackTrace();
     	}
+        
+		System.out.println("Connection Reached Initialization");
         
         this.start();
     }
@@ -61,7 +71,12 @@ public class ClientConnection extends Thread implements IClient {
 						quit(args[1]);
 						break;
 					case ACTION_HEARTBEAT_RECEIVED:
-						heartbeats = 0;
+						heartbeats--;
+						ping = System.currentTimeMillis() - sent_time;
+						System.out.println(username + ", Ping: " + ping + ". Heartbeats missed: " + heartbeats);
+						break;
+					case ACTION_HEARTBEAT:
+						out.println("Pong");
 						break;
 				}
 									
@@ -81,6 +96,7 @@ public class ClientConnection extends Thread implements IClient {
 	public void quit(String reason) {		
 		try {
 			ThreadedServer.playerDisconnected(this, reason);
+			running = false;
 			socket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -92,16 +108,21 @@ public class ClientConnection extends Thread implements IClient {
 		
 		switch(args[0]) {
 			case ACTION_HEARTBEAT:
-//				heartbeats++;
-//				
-//				if(heartbeats > 5)
-//					ThreadedServer.playerDisconnected(this, "Timeout");		
-//					try {
-//						socket.close();
-//					} catch (IOException e) {
-//						out.println("Kicked Timed out!");
-//						return;
-//					}
+				heartbeats++;
+				
+				if(heartbeats > 5) {
+					try {
+						socket.close();
+						running = false;
+						out.println("Kicked Timed out!");
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					
+					ThreadedServer.playerDisconnected(this, "Timeout");		
+				}
+				
+				sent_time = System.currentTimeMillis();
 				break;
 		}
 		

@@ -22,7 +22,7 @@ public class ThreadedServer implements IServer {
 
 	public static void main(String[] args) {
 		try {
-			socket = new ServerSocket(serverPort);
+			socket = new ServerSocket(serverPort, maxPlayers + 1, java.net.InetAddress.getLocalHost());
 			System.out.println("Server started!");
 		} catch (IOException e) {
 			System.err.println("Couldn't bind to socket " + serverPort + ", perhaps a server is already running on that port?");
