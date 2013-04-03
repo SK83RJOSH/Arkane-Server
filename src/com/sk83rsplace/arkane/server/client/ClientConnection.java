@@ -17,6 +17,7 @@ public class ClientConnection extends Thread implements IClient {
     private static final String ACTION_DISCONNECT = "Disconnecting";
     private static final String ACTION_HEARTBEAT = "Ping";
     private static final String ACTION_HEARTBEAT_RECEIVED = "Pong";
+    private static final String CLIENT_UPDATE = "Update";
     private boolean running;
     private int heartbeats;
     private long ping;
@@ -58,7 +59,7 @@ public class ClientConnection extends Thread implements IClient {
 				clientMessage = "";
 			}
 						
-			if(clientMessage != lastMessage) {
+			if(clientMessage != lastMessage && clientMessage != null) {
 				String args[] = clientMessage.split(" ");
 				
 				switch(args[0]) {
@@ -77,6 +78,11 @@ public class ClientConnection extends Thread implements IClient {
 						break;
 					case ACTION_HEARTBEAT:
 						out.println("Pong");
+						break;
+					case CLIENT_UPDATE:
+						for(IClient c : ThreadedServer.clients)
+							if(c != this)
+								c.update(clientMessage);						
 						break;
 				}
 									
@@ -131,5 +137,9 @@ public class ClientConnection extends Thread implements IClient {
 	
 	private void connect() {
 		ThreadedServer.playerConnected(this);
+		
+		for(IClient c : ThreadedServer.clients)
+			if(c != this)
+				out.println("Create " + c.getPlayerName() + " 0 0");
 	}
 }
