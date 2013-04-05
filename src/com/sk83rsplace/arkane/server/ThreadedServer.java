@@ -118,6 +118,10 @@ public class ThreadedServer implements IServer {
 				break;
 		}
 		
+		for(IClient cl : clients)
+			if(cl != c)
+				cl.update("Disconnect " + c.getPlayerName());
+		
 		clients.remove(c);
 	}
 }
