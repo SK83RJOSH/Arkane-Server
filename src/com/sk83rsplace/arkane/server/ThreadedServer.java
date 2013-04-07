@@ -9,7 +9,7 @@ import com.sk83rsplace.arkane.server.client.ClientConnection;
 import com.sk83rsplace.arkane.server.client.IClient;
 import com.sk83rsplace.arkane.server.game.GameThread;
 
-public class ThreadedServer {
+public class ThreadedServer implements IServer {
 	public static CopyOnWriteArrayList<IClient> clients = new CopyOnWriteArrayList<IClient>();
 	private static int maxPlayers = 6;
 	private static int serverPort = 3371;
@@ -59,7 +59,7 @@ public class ThreadedServer {
 		System.exit(0);
 	}
 
-	public static String getServerName() {
+	public String getServerName() {
 		return null;
 	}
 
@@ -67,20 +67,24 @@ public class ThreadedServer {
 		return null;
 	}
 	
-	public static int getServerPort() {
+	public int getServerPort() {
 		return 0;
 	}
 	
-	public static boolean getServerType() {
+	public boolean getServerType() {
 		return publicServer;
 	}
 
-	public static int getMaxPlayerCount() {
+	public int getMaxPlayerCount() {
 		return maxPlayers;
 	}
 
-	public static int getPlayerCount() {
+	public int getPlayerCount() {
 		return clients.size();
+	}
+
+	public int calculatePing(IClient c) {
+		return 0;
 	}
 
 	public String[] getClients() {
