@@ -18,6 +18,8 @@ public class ClientConnection extends Thread implements IClient {
     private static final String ACTION_HEARTBEAT = "Ping";
     private static final String ACTION_HEARTBEAT_RECEIVED = "Pong";
     private static final String CLIENT_UPDATE = "Update";
+    private static final String CLIENT_CONNECT = "Connect";
+    private static final String SERVER_STAT = "Stats";
     private boolean running;
     private int heartbeats;
     private long ping;
@@ -29,18 +31,14 @@ public class ClientConnection extends Thread implements IClient {
     	sent_time = 0;
     	heartbeats = 0;
     	running = true;
-    	
-        System.out.println("Heartbeats: " + heartbeats + " Ping: " + ping);
-        
+    	        
         try {
 	        out = new PrintWriter(socket.getOutputStream(), true);
 	        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         } catch(IOException e ) {
     		e.printStackTrace();
     	}
-        
-		System.out.println("Connection Reached Initialization");
-        
+                
         this.start();
     }
     
@@ -49,9 +47,7 @@ public class ClientConnection extends Thread implements IClient {
 
         String clientMessage = "";
         String lastMessage = "";
-        
-        out.println("Connect OK");
-        
+                
         while(running != false) {	
 			try {
 				clientMessage = in.readLine();
@@ -83,6 +79,13 @@ public class ClientConnection extends Thread implements IClient {
 						for(IClient c : ThreadedServer.clients)
 							if(c != this)
 								c.update(clientMessage);						
+						break;
+					case CLIENT_CONNECT:
+				        out.println("Connect OK");
+						break;
+					case SERVER_STAT:
+						ThreadedServer.clients.remove(this);
+						out.println(ThreadedServer.getPlayerCount() + " " + ThreadedServer.getMaxPlayerCount());
 						break;
 				}
 									
