@@ -9,8 +9,9 @@ import com.sk83rsplace.arkane.server.client.ClientConnection;
 import com.sk83rsplace.arkane.server.client.IClient;
 import com.sk83rsplace.arkane.server.game.GameThread;
 
-public class ThreadedServer implements IServer {
+public class ThreadedServer {
 	public static CopyOnWriteArrayList<IClient> clients = new CopyOnWriteArrayList<IClient>();
+	public static CopyOnWriteArrayList<IClient> pooledClients = new CopyOnWriteArrayList<IClient>();
 	private static int maxPlayers = 6;
 	private static int serverPort = 3371;
 	private static boolean publicServer = true;
@@ -37,7 +38,7 @@ public class ThreadedServer implements IServer {
 		while(running != false) {			
 			try {
 				connection = socket.accept();
-				clients.add(new ClientConnection(connection));
+				pooledClients.add(new ClientConnection(connection));
 			} catch (Exception e) {
 				System.err.println("There was a problem accepting the most recent connection.");
 				//shutdown();
@@ -59,31 +60,31 @@ public class ThreadedServer implements IServer {
 		System.exit(0);
 	}
 
-	public String getServerName() {
+	public static String getServerName() {
 		return null;
 	}
 
-	public String getServerHost() {
-		return null;
+	public static String getServerHost() {
+		return socket.getInetAddress().getHostAddress();
 	}
 	
-	public int getServerPort() {
-		return 0;
+	public static int getServerPort() {
+		return socket.getLocalPort();
 	}
 	
-	public boolean getServerType() {
+	public static boolean getServerType() {
 		return publicServer;
 	}
 
-	public int getMaxPlayerCount() {
+	public static int getMaxPlayerCount() {
 		return maxPlayers;
 	}
 
-	public int getPlayerCount() {
+	public static int getPlayerCount() {
 		return clients.size();
 	}
 
-	public int calculatePing(IClient c) {
+	public static int calculatePing(IClient c) {
 		return 0;
 	}
 

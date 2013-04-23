@@ -14,10 +14,13 @@ public class GameThread extends Thread {
 		super.run();
 		
 		while(true) {
-			if(tick%30 == 0)
+			if(tick%30 == 0) {
 				for(IClient c : ThreadedServer.clients)
-					c.update("Ping Pong");
+					c.update("Ping");
 			
+				for(IClient c: ThreadedServer.pooledClients)
+					c.update("Ping");
+			}
 			tick++;
 			tick = tick%60;
 			try {
